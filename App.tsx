@@ -1,12 +1,12 @@
 
 import React, { useState, useEffect } from 'react';
-import Sidebar from '../components/Sidebar';
-import BrandSettings from '../components/BrandSettings';
-import CreativeStudio from '../components/CreativeStudio';
-import Settings from '../components/Settings';
-import Login from '../components/Login';
+import Sidebar from './components/Sidebar';
+import BrandSettings from './components/BrandSettings';
+import CreativeStudio from './components/CreativeStudio';
+import Settings from './components/Settings';
+import Login from './components/Login';
 import { AppView, BrandProfile, GeneratedArt, VisualStyle } from './types';
-import { dbService } from '../services/dbService';
+import { dbService } from './services/dbService';
 
 const MAX_HISTORY_ITEMS = 100;
 
