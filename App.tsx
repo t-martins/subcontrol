@@ -1,12 +1,12 @@
 
 import React, { useState, useEffect } from 'react';
-import Sidebar from './components/Sidebar';
-import BrandSettings from './components/BrandSettings';
-import CreativeStudio from './components/CreativeStudio';
-import Settings from './components/Settings';
-import Login from './components/Login';
+import Sidebar from '../components/Sidebar';
+import BrandSettings from '../components/BrandSettings';
+import CreativeStudio from '../components/CreativeStudio';
+import Settings from '../components/Settings';
+import Login from '../components/Login';
 import { AppView, BrandProfile, GeneratedArt, VisualStyle } from './types';
-import { dbService } from './services/dbService';
+import { dbService } from '../services/dbService';
 
 const MAX_HISTORY_ITEMS = 100;
 
@@ -30,7 +30,7 @@ const App: React.FC = () => {
   const [isDbReady, setIsDbReady] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-  
+
   const [brand, setBrand] = useState<BrandProfile>(INITIAL_BRAND);
   const [history, setHistory] = useState<GeneratedArt[]>([]);
   const [preSelectedStyle, setPreSelectedStyle] = useState<VisualStyle | null>(null);
@@ -41,10 +41,10 @@ const App: React.FC = () => {
       await dbService.init();
       const savedBrand = await dbService.getBrand();
       const savedHistory = await dbService.getHistory();
-      
+
       if (savedBrand) setBrand(savedBrand);
       if (savedHistory) setHistory(savedHistory.sort((a, b) => b.timestamp - a.timestamp));
-      
+
       setIsLoaded(true);
       setIsDbReady(true);
     } catch (err) {
@@ -108,18 +108,18 @@ const App: React.FC = () => {
 
   return (
     <div className="min-h-screen flex bg-brand-light text-brand-deep">
-      <Sidebar 
-        currentView={view} 
-        setView={(v) => { setView(v); setPreSelectedStyle(null); }} 
-        userName="JANA'S CAKES" 
-        email="contato@janascakes.com" 
+      <Sidebar
+        currentView={view}
+        setView={(v) => { setView(v); setPreSelectedStyle(null); }}
+        userName="JANA'S CAKES"
+        email="contato@janascakes.com"
         isOnline={isDbReady}
         isSaving={isSaving}
       />
-      
+
       <div className="flex-1 flex flex-col ml-64 min-h-screen">
         <main className="flex-1 w-full max-w-7xl mx-auto px-10 py-12 animate-fadeIn relative z-10">
-          
+
           {view === AppView.PROJECTS && (
             <div className="space-y-8">
               <div className="flex items-center justify-between">
@@ -147,7 +147,7 @@ const App: React.FC = () => {
                   <i className="fas fa-plus text-2xl mb-4"></i>
                   <span className="font-bold text-xs uppercase tracking-widest">Criar novo post</span>
                 </div>
-                
+
                 {history.slice(0, 1).map((art) => (
                   <div key={art.id} className="bg-white rounded-3xl overflow-hidden border border-brand-soft shadow-sm">
                     <div className="h-48 relative">
@@ -164,26 +164,26 @@ const App: React.FC = () => {
           )}
 
           {view === AppView.BRAND_PROFILE && (
-            <BrandSettings 
-              brand={brand} 
-              setBrand={setBrand} 
+            <BrandSettings
+              brand={brand}
+              setBrand={setBrand}
               onProceed={(style) => {
                 if (style) setPreSelectedStyle(style);
                 setView(AppView.CREATE_ART);
-              }} 
+              }}
               onExportBackup={handleBackupExport}
               onImportBackup={handleBackupImport}
             />
           )}
-          
+
           {view === AppView.CREATE_ART && (
-            <CreativeStudio 
-              brand={brand} 
-              history={history} 
+            <CreativeStudio
+              brand={brand}
+              history={history}
               preSelectedStyle={preSelectedStyle}
-              onArtGenerated={handleCreateArt} 
+              onArtGenerated={handleCreateArt}
               onDeleteArt={(id) => setHistory(h => h.filter(x => x.id !== id))}
-              onReorderArt={(id) => {}}
+              onReorderArt={(id) => { }}
               onClearHistory={() => setHistory([])}
               onBack={() => setView(AppView.PROJECTS)}
             />
