@@ -15,7 +15,8 @@
     "react-dom": "^19.2.4"
   },
   "overrides": {
-    "glob": "^11.0.0"
+    "glob": "^13.0.0",
+    "node-domexception": "^1.0.0"
   },
   "devDependencies": {
     "@types/node": "^22.14.0",

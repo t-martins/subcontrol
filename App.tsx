@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import Sidebar from './components/Sidebar';
+import { Sidebar } from './components/Sidebar';
 import BrandSettings from './components/BrandSettings';
 import CreativeStudio from './components/CreativeStudio';
 import Settings from './components/Settings';
