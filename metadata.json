@@ -1,0 +1,7 @@
+{
+  "name": "Janas - Social Media Studio",
+  "description": "Uma plataforma avançada para criação de artes para redes sociais utilizando IA, com gestão de marca e perfis visuais personalizados.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}

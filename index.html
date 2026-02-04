@@ -1,0 +1,97 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Social Media Studio</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            light: '#F9EDED',   // Off-white rosado
+                            soft: '#F9D2D2',    // Rosa pastel claro
+                            primary: '#EE989D', // Rosa médio
+                            accent: '#F2AB36',  // Laranja/Ouro
+                            deep: '#9D5316'     // Marrom profundo
+                        },
+                        dark: {
+                            950: '#09090b',
+                            900: '#121214',
+                            800: '#1c1c1e',
+                            700: '#2d2d30',
+                            600: '#3f3f46',
+                            500: '#71717a',
+                            400: '#a1a1aa'
+                        }
+                    },
+                    animation: {
+                        'fadeIn': 'fadeIn 0.5s ease-out',
+                        'scaleIn': 'scaleIn 0.3s ease-out',
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': { opacity: '0', transform: 'translateY(10px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        },
+                        scaleIn: {
+                            '0%': { opacity: '0', transform: 'scale(0.95)' },
+                            '100%': { opacity: '1', transform: 'scale(1)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&family=Dancing+Script:wght@600&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F9EDED;
+            color: #9D5316;
+            margin: 0;
+        }
+        .font-script {
+            font-family: 'Dancing Script', cursive;
+        }
+        .bg-dots {
+            background-image: radial-gradient(#EE989D 1px, transparent 1px);
+            background-size: 32px 32px;
+            opacity: 0.2;
+        }
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #F9EDED;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #EE989D;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #9D5316;
+        }
+    </style>
+<script type="importmap">
+{
+  "imports": {
+    "react/": "https://esm.sh/react@^19.2.4/",
+    "react": "https://esm.sh/react@^19.2.4",
+    "@google/genai": "https://esm.sh/@google/genai@^1.38.0",
+    "react-dom/": "https://esm.sh/react-dom@^19.2.4/"
+  }
+}
+</script>
+<link rel="stylesheet" href="/index.css">
+</head>
+<body class="relative">
+    <div class="bg-dots fixed inset-0 pointer-events-none"></div>
+    <div id="root" class="relative z-10"></div>
+<script type="module" src="/index.tsx"></script>
+</body>
+</html>
