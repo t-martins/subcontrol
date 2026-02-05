@@ -1,4 +1,5 @@
 
+
 import { GoogleGenAI } from "@google/genai";
 import { AspectRatio, ScannedDNA } from "../types";
 
@@ -24,6 +25,18 @@ const parseDataUrl = (dataUrl: string) => {
   }
 };
 
+// Função para obter a chave da API (localStorage ou variável de ambiente)
+const getApiKey = (): string => {
+  // Primeiro tenta localStorage (configuração manual do usuário)
+  const localKey = localStorage.getItem('gemini_api_key');
+  if (localKey) return localKey;
+
+  // Fallback para variável de ambiente (desenvolvimento local)
+  return process.env.API_KEY || '';
+};
+
+
+
 async function withRetry<T>(fn: () => Promise<T>, maxRetries = 2, initialDelay = 1000): Promise<T> {
   let lastError: any;
   for (let i = 0; i < maxRetries; i++) {
@@ -32,7 +45,7 @@ async function withRetry<T>(fn: () => Promise<T>, maxRetries = 2, initialDelay =
     } catch (err: any) {
       lastError = err;
       const isQuotaError = err.message?.includes('429') || err.status === 429 || err.code === 429;
-      
+
       if (isQuotaError && i < maxRetries - 1) {
         const delay = initialDelay * Math.pow(2, i);
         await new Promise(resolve => setTimeout(resolve, delay));
@@ -56,14 +69,19 @@ export const scanImageDNA = async (imageBase64: string): Promise<ScannedDNA> => 
   - description: resumo da narrativa visual.`;
 
   return withRetry(async () => {
-    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+    const apiKey = getApiKey();
+    if (!apiKey) {
+      throw new Error("Chave da API não configurada. Por favor, configure nas Settings.");
+    }
+
+    const ai = new GoogleGenAI({ apiKey });
     const response = await ai.models.generateContent({
       model: 'gemini-3-pro-preview',
-      contents: { 
+      contents: {
         parts: [
           { inlineData: { data: parsed.data, mimeType: parsed.mimeType } },
           { text: prompt }
-        ] 
+        ]
       },
       config: { responseMimeType: "application/json" }
     });
@@ -71,7 +89,7 @@ export const scanImageDNA = async (imageBase64: string): Promise<ScannedDNA> => 
     const text = response.text || '{}';
     const cleanJson = text.replace(/```json/g, '').replace(/```/g, '').trim();
     const parsedJson = JSON.parse(cleanJson);
-    
+
     return {
       colors: Array.isArray(parsedJson.colors) ? parsedJson.colors : [],
       typography: parsedJson.typography || "Padrão",
@@ -82,7 +100,7 @@ export const scanImageDNA = async (imageBase64: string): Promise<ScannedDNA> => 
 };
 
 export const generateArt = async (
-  prompt: string, 
+  prompt: string,
   aspectRatio: AspectRatio,
   brandContext?: string,
   referenceImages?: string | string[],
@@ -101,7 +119,7 @@ export const generateArt = async (
     Estilo: ${scannedDNA.description || ''}
   ` : '';
 
-  const watermarkInstruction = includeWatermark 
+  const watermarkInstruction = includeWatermark
     ? `ADICIONE discretamente a marca d'água "Jana's Cakes".`
     : `NÃO adicione marca d'água.`;
 
@@ -121,9 +139,14 @@ export const generateArt = async (
   }
 
   return withRetry(async () => {
-    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+    const apiKey = getApiKey();
+    if (!apiKey) {
+      throw new Error("Chave da API não configurada. Por favor, configure nas Settings.");
+    }
+
+    const ai = new GoogleGenAI({ apiKey });
     const parts = [...imageParts, { text: `${commonContext}\nOBJETIVO: ${prompt}\nFORMATO: ${aspectRatio}` }];
-    
+
     const imageResponse = await ai.models.generateContent({
       model: 'gemini-2.5-flash-image',
       contents: { parts },
