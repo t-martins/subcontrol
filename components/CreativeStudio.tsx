@@ -4,6 +4,19 @@ import { BrandProfile, GeneratedArt, AspectRatio, VisualStyle } from '../types';
 import { generateArt } from '../services/geminiService';
 import ImageCard from './ImageCard';
 
+// Função para normalizar estilos antigos (image) para novo formato (images)
+const normalizeStyle = (style: VisualStyle): VisualStyle => {
+  if (style.image && !style.images) {
+    return { ...style, images: [style.image] };
+  }
+  return style;
+};
+
+// Função para obter a primeira imagem de um estilo
+const getStyleImage = (style: VisualStyle): string => {
+  return style.images?.[0] || style.image || '';
+};
+
 interface CreativeStudioProps {
   brand: BrandProfile;
   history: GeneratedArt[];
@@ -15,13 +28,13 @@ interface CreativeStudioProps {
   onBack: () => void;
 }
 
-const CreativeStudio: React.FC<CreativeStudioProps> = ({ 
-  brand, 
-  history, 
-  preSelectedStyle, 
-  onArtGenerated, 
-  onDeleteArt, 
-  onBack 
+const CreativeStudio: React.FC<CreativeStudioProps> = ({
+  brand,
+  history,
+  preSelectedStyle,
+  onArtGenerated,
+  onDeleteArt,
+  onBack
 }) => {
   const [prompt, setPrompt] = useState('');
   const [selectedFormat, setSelectedFormat] = useState<AspectRatio>(AspectRatio.SQUARE);
@@ -31,7 +44,7 @@ const CreativeStudio: React.FC<CreativeStudioProps> = ({
   const [selectedExpert, setSelectedExpert] = useState<string | null>(null);
   const [selectedProducts, setSelectedProducts] = useState<string[]>([]);
   const [includeWatermark, setIncludeWatermark] = useState(false);
-  
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<GeneratedArt | null>(null);
@@ -47,7 +60,7 @@ const CreativeStudio: React.FC<CreativeStudioProps> = ({
   }, [preSelectedStyle]);
 
   const toggleProduct = (url: string) => {
-    setSelectedProducts(prev => 
+    setSelectedProducts(prev =>
       prev.includes(url) ? prev.filter(p => p !== url) : [...prev, url]
     );
   };
@@ -57,21 +70,21 @@ const CreativeStudio: React.FC<CreativeStudioProps> = ({
     setLoading(true);
     setError(null);
     setResult(null);
-    
+
     try {
       const brandContext = `Estilo: ${brand.visualStyle}. ${selectedStyle ? `DNA: ${selectedStyle.name} - ${selectedStyle.dna?.description || ''}` : ''}`;
       const refs = [...(selectedExpert ? [selectedExpert] : []), ...selectedProducts];
 
       const res = await generateArt(
-        prompt, 
-        selectedFormat, 
-        brandContext, 
+        prompt,
+        selectedFormat,
+        brandContext,
         refs.length > 0 ? refs : undefined,
         useImpact,
         selectedStyle?.dna,
         includeWatermark
       );
-      
+
       const newArt: GeneratedArt = {
         id: `art-${Math.random().toString(36).substr(2, 5)}`,
         urls: res.imageUrls,
@@ -79,7 +92,7 @@ const CreativeStudio: React.FC<CreativeStudioProps> = ({
         description: res.description,
         timestamp: Date.now()
       };
-      
+
       setResult(newArt);
     } catch (err: any) {
       setError(err.message || 'Ocorreu um erro na geração da imagem. Tente novamente.');
@@ -127,7 +140,7 @@ const CreativeStudio: React.FC<CreativeStudioProps> = ({
             </div>
           </div>
           <button onClick={onBack} className="px-6 py-2 bg-brand-light text-brand-deep rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-brand-soft transition-all flex items-center gap-2">
-             <i className="fas fa-arrow-left"></i> Voltar à Galeria
+            <i className="fas fa-arrow-left"></i> Voltar à Galeria
           </button>
         </div>
 
@@ -135,21 +148,21 @@ const CreativeStudio: React.FC<CreativeStudioProps> = ({
           <div className="space-y-8">
             <div className="space-y-3">
               <label className="text-xs font-black text-brand-deep uppercase tracking-widest ml-1">O que vamos criar?</label>
-              <textarea 
-                value={prompt} 
-                onChange={e => setPrompt(e.target.value)} 
-                placeholder="Ex: Foto de um bolo de cenoura com calda escorrendo, estilo rústico e acolhedor..." 
-                className="w-full bg-brand-light/30 border border-brand-soft rounded-[2rem] px-8 py-6 outline-none focus:border-brand-accent text-brand-deep font-bold min-h-[160px] resize-none shadow-inner" 
+              <textarea
+                value={prompt}
+                onChange={e => setPrompt(e.target.value)}
+                placeholder="Ex: Foto de um bolo de cenoura com calda escorrendo, estilo rústico e acolhedor..."
+                className="w-full bg-brand-light/30 border border-brand-soft rounded-[2rem] px-8 py-6 outline-none focus:border-brand-accent text-brand-deep font-bold min-h-[160px] resize-none shadow-inner"
               />
             </div>
-            
+
             <div className="space-y-4">
               <label className="text-xs font-black text-brand-deep uppercase tracking-widest ml-1">Formato da Arte</label>
               <div className="grid grid-cols-4 gap-3">
                 {formats.map(f => (
                   <div key={f.value} className="group relative">
-                    <button 
-                      onClick={() => setSelectedFormat(f.value)} 
+                    <button
+                      onClick={() => setSelectedFormat(f.value)}
                       className={`w-full flex flex-col items-center justify-center py-4 rounded-2xl border-2 transition-all ${selectedFormat === f.value ? 'border-brand-accent bg-brand-light/50 text-brand-deep shadow-inner' : 'border-brand-soft text-brand-primary opacity-60 hover:opacity-100 hover:bg-white'}`}
                     >
                       <i className={`fas ${f.icon} mb-1 text-sm`}></i>
@@ -165,7 +178,7 @@ const CreativeStudio: React.FC<CreativeStudioProps> = ({
             </div>
 
             <div className="grid grid-cols-2 gap-4">
-              <div 
+              <div
                 onClick={() => setIncludeWatermark(!includeWatermark)}
                 className={`flex items-center justify-between p-5 rounded-2xl border-2 cursor-pointer transition-all ${includeWatermark ? 'bg-brand-light/50 border-brand-accent' : 'bg-white border-brand-soft'}`}
               >
@@ -177,7 +190,7 @@ const CreativeStudio: React.FC<CreativeStudioProps> = ({
                 </div>
               </div>
 
-              <div 
+              <div
                 onClick={() => setUseImpact(!useImpact)}
                 className={`flex items-center justify-between p-5 rounded-2xl border-2 cursor-pointer transition-all ${useImpact ? 'bg-brand-deep border-brand-accent text-white' : 'bg-white border-brand-soft'}`}
               >
@@ -195,50 +208,53 @@ const CreativeStudio: React.FC<CreativeStudioProps> = ({
                 <label className="text-[10px] font-black text-brand-deep uppercase tracking-widest">DNA de Estilo</label>
                 <span className="text-[8px] font-bold text-brand-primary uppercase italic">Role para o lado</span>
               </div>
-              
+
               {/* Carrossel de Estilos Aprimorado */}
               <div className="flex gap-4 overflow-x-auto pb-4 pt-1 scrollbar-hide snap-x snap-mandatory">
                 <div className="snap-start flex-shrink-0">
-                  <button 
-                    onClick={() => setSelectedStyle(null)} 
+                  <button
+                    onClick={() => setSelectedStyle(null)}
                     className={`w-24 h-24 rounded-[1.5rem] border-2 flex flex-col items-center justify-center gap-1 transition-all ${!selectedStyle ? 'border-brand-accent bg-white shadow-xl scale-105 z-10' : 'border-brand-soft bg-white/50 opacity-40 hover:opacity-100'}`}
                   >
                     <div className="w-8 h-8 rounded-full bg-brand-soft flex items-center justify-center">
-                       <i className="fas fa-magic text-brand-deep text-[10px]"></i>
+                      <i className="fas fa-magic text-brand-deep text-[10px]"></i>
                     </div>
                     <span className="text-[8px] font-black uppercase">Padrão</span>
                   </button>
                 </div>
-                
-                {(brand.savedStyles || []).map(s => (
-                  <div key={s.id} className="snap-start flex-shrink-0 relative">
-                    <button 
-                      onClick={() => setViewingStyle(s)} 
-                      className={`w-24 h-24 rounded-[1.5rem] border-2 overflow-hidden relative transition-all group ${selectedStyle?.id === s.id ? 'border-brand-accent scale-105 shadow-xl z-10' : 'border-brand-soft opacity-40 hover:opacity-100 hover:scale-[1.02]'}`}
-                    >
-                      <img src={s.image} className="w-full h-full object-cover" />
-                      <div className="absolute inset-0 bg-brand-deep/20 group-hover:bg-transparent transition-all"></div>
-                      <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-brand-deep/80 to-transparent p-2">
-                        <p className="text-[7px] font-black text-white uppercase text-center truncate">{s.name}</p>
-                      </div>
-                      
-                      {selectedStyle?.id === s.id && (
-                        <div className="absolute top-1 right-1 w-4 h-4 bg-brand-accent rounded-full flex items-center justify-center shadow-lg border border-white">
-                           <i className="fas fa-check text-white text-[6px]"></i>
+
+                {(brand.savedStyles || []).map(s => {
+                  const normalizedStyle = normalizeStyle(s);
+                  return (
+                    <div key={s.id} className="snap-start flex-shrink-0 relative">
+                      <button
+                        onClick={() => setViewingStyle(normalizedStyle)}
+                        className={`w-24 h-24 rounded-[1.5rem] border-2 overflow-hidden relative transition-all group ${selectedStyle?.id === s.id ? 'border-brand-accent scale-105 shadow-xl z-10' : 'border-brand-soft opacity-40 hover:opacity-100 hover:scale-[1.02]'}`}
+                      >
+                        <img src={getStyleImage(normalizedStyle)} className="w-full h-full object-cover" />
+                        <div className="absolute inset-0 bg-brand-deep/20 group-hover:bg-transparent transition-all"></div>
+                        <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-brand-deep/80 to-transparent p-2">
+                          <p className="text-[7px] font-black text-white uppercase text-center truncate">{s.name}</p>
                         </div>
-                      )}
-                    </button>
-                  </div>
-                ))}
+
+                        {selectedStyle?.id === s.id && (
+                          <div className="absolute top-1 right-1 w-4 h-4 bg-brand-accent rounded-full flex items-center justify-center shadow-lg border border-white">
+                            <i className="fas fa-check text-white text-[6px]"></i>
+                          </div>
+                        )}
+                      </button>
+                    </div>
+                  );
+                })}
               </div>
 
               {selectedStyle && (
                 <div className="mt-2 p-3 bg-white/60 rounded-xl border border-brand-accent/30 flex items-center justify-between animate-fadeIn">
-                   <div className="flex items-center gap-2">
-                      <div className="w-1.5 h-1.5 bg-brand-accent rounded-full animate-pulse"></div>
-                      <span className="text-[9px] font-black text-brand-deep uppercase">Ativo: {selectedStyle.name}</span>
-                   </div>
-                   <button onClick={() => setSelectedStyle(null)} className="text-[8px] font-black text-brand-primary hover:text-red-500 uppercase">Remover</button>
+                  <div className="flex items-center gap-2">
+                    <div className="w-1.5 h-1.5 bg-brand-accent rounded-full animate-pulse"></div>
+                    <span className="text-[9px] font-black text-brand-deep uppercase">Ativo: {selectedStyle.name}</span>
+                  </div>
+                  <button onClick={() => setSelectedStyle(null)} className="text-[8px] font-black text-brand-primary hover:text-red-500 uppercase">Remover</button>
                 </div>
               )}
             </div>
@@ -251,7 +267,7 @@ const CreativeStudio: React.FC<CreativeStudioProps> = ({
               </div>
               <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide snap-x snap-mandatory">
                 <div className="snap-start">
-                  <button 
+                  <button
                     onClick={() => setSelectedExpert(null)}
                     className={`flex-shrink-0 w-16 h-16 rounded-xl border-2 flex items-center justify-center text-[8px] font-black transition-all ${!selectedExpert ? 'border-brand-accent bg-white shadow-md' : 'border-brand-soft opacity-40'}`}
                   >
@@ -260,8 +276,8 @@ const CreativeStudio: React.FC<CreativeStudioProps> = ({
                 </div>
                 {(brand.expertReferences || []).map((url, i) => (
                   <div key={i} className="snap-start">
-                    <button 
-                      onClick={() => setSelectedExpert(url === selectedExpert ? null : url)} 
+                    <button
+                      onClick={() => setSelectedExpert(url === selectedExpert ? null : url)}
                       className={`flex-shrink-0 w-16 h-16 rounded-xl border-2 overflow-hidden transition-all ${selectedExpert === url ? 'border-brand-accent scale-105 shadow-md' : 'border-brand-soft opacity-40 hover:opacity-100'}`}
                     >
                       <img src={url} className="w-full h-full object-cover" />
@@ -280,8 +296,8 @@ const CreativeStudio: React.FC<CreativeStudioProps> = ({
               <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide snap-x snap-mandatory">
                 {(brand.productReferences || []).map((url, i) => (
                   <div key={`p-${i}`} className="snap-start">
-                    <button 
-                      onClick={() => toggleProduct(url)} 
+                    <button
+                      onClick={() => toggleProduct(url)}
                       className={`flex-shrink-0 w-16 h-16 rounded-xl border-2 overflow-hidden transition-all relative ${selectedProducts.includes(url) ? 'border-brand-accent scale-105 shadow-md' : 'border-brand-soft opacity-40 hover:opacity-100'}`}
                     >
                       <img src={url} className="w-full h-full object-cover" />
@@ -302,9 +318,9 @@ const CreativeStudio: React.FC<CreativeStudioProps> = ({
         </div>
 
         <div className="flex justify-center pt-4">
-          <button 
-            onClick={handleGenerate} 
-            disabled={loading || !prompt} 
+          <button
+            onClick={handleGenerate}
+            disabled={loading || !prompt}
             className={`w-full max-w-2xl py-6 rounded-3xl font-black text-sm uppercase tracking-[0.3em] shadow-2xl transition-all ${loading || !prompt ? 'bg-brand-soft text-brand-primary cursor-not-allowed' : 'bg-brand-accent text-white hover:scale-[1.02] active:scale-95 shadow-brand-accent/30'}`}
           >
             {loading ? <><i className="fas fa-spinner fa-spin mr-2"></i> Criando Arte...</> : 'Gerar Postagem'}
@@ -317,15 +333,15 @@ const CreativeStudio: React.FC<CreativeStudioProps> = ({
         <div className="fixed inset-0 z-[120] bg-brand-deep/80 backdrop-blur-xl flex items-center justify-center p-6 sm:p-12" onClick={() => setViewingStyle(null)}>
           <div className="bg-white rounded-[3.5rem] w-full max-w-4xl max-h-[90vh] overflow-y-auto animate-scaleIn shadow-2xl border border-brand-soft flex flex-col md:flex-row overflow-hidden" onClick={e => e.stopPropagation()}>
             <div className="md:w-1/2 h-[300px] md:h-auto relative">
-              <img src={viewingStyle.image} className="w-full h-full object-cover" alt={viewingStyle.name} />
+              <img src={getStyleImage(viewingStyle)} className="w-full h-full object-cover" alt={viewingStyle.name} />
               <div className="absolute inset-0 bg-gradient-to-t from-brand-deep/40 to-transparent pointer-events-none"></div>
             </div>
-            
+
             <div className="md:w-1/2 p-10 flex flex-col justify-between space-y-8 bg-dots relative">
               <button onClick={() => setViewingStyle(null)} className="absolute top-6 right-6 w-10 h-10 rounded-full bg-brand-light flex items-center justify-center text-brand-deep hover:bg-brand-soft transition-all">
                 <i className="fas fa-times"></i>
               </button>
-              
+
               <div className="space-y-6">
                 <div>
                   <span className="text-[10px] font-black text-brand-accent uppercase tracking-[0.3em]">Mergulho no DNA</span>
@@ -339,8 +355,8 @@ const CreativeStudio: React.FC<CreativeStudioProps> = ({
                       <div className="flex gap-3">
                         {viewingStyle.dna.colors.map(c => (
                           <div key={c} className="group relative">
-                             <div className="w-10 h-10 rounded-xl shadow-lg border-2 border-white" style={{backgroundColor: c}}></div>
-                             <span className="absolute -bottom-6 left-1/2 -translate-x-1/2 text-[8px] font-bold opacity-0 group-hover:opacity-100 transition-opacity bg-brand-deep text-white px-1.5 py-0.5 rounded uppercase">{c}</span>
+                            <div className="w-10 h-10 rounded-xl shadow-lg border-2 border-white" style={{ backgroundColor: c }}></div>
+                            <span className="absolute -bottom-6 left-1/2 -translate-x-1/2 text-[8px] font-bold opacity-0 group-hover:opacity-100 transition-opacity bg-brand-deep text-white px-1.5 py-0.5 rounded uppercase">{c}</span>
                           </div>
                         ))}
                       </div>
@@ -361,8 +377,8 @@ const CreativeStudio: React.FC<CreativeStudioProps> = ({
                 )}
               </div>
 
-              <button 
-                onClick={() => { setSelectedStyle(viewingStyle); setViewingStyle(null); }} 
+              <button
+                onClick={() => { setSelectedStyle(viewingStyle); setViewingStyle(null); }}
                 className="w-full py-5 bg-brand-accent text-white rounded-[1.5rem] font-black uppercase text-xs tracking-widest shadow-2xl shadow-brand-accent/40 hover:-translate-y-1 transition-all flex items-center justify-center gap-3"
               >
                 <i className="fas fa-check-circle"></i> Aplicar ao Estúdio
@@ -376,14 +392,14 @@ const CreativeStudio: React.FC<CreativeStudioProps> = ({
         <div className="bg-white p-10 rounded-[3.5rem] border-4 border-brand-accent shadow-2xl animate-scaleIn flex flex-col items-center gap-8 max-w-2xl mx-auto w-full relative">
           <img src={result.urls[0]} className="w-full rounded-[2rem] shadow-2xl border border-brand-soft" alt="Arte" />
           <div className="flex gap-4 w-full">
-            <button 
-              onClick={handleDiscard} 
+            <button
+              onClick={handleDiscard}
               className="flex-1 py-4 bg-brand-light text-red-500 rounded-2xl font-black uppercase text-xs hover:bg-red-50 transition-all flex items-center justify-center gap-2"
             >
               <i className="fas fa-thumbs-down"></i> Descartar
             </button>
-            <button 
-              onClick={handleSave} 
+            <button
+              onClick={handleSave}
               className="flex-[2] py-4 bg-brand-deep text-white rounded-2xl font-black uppercase text-xs shadow-xl hover:-translate-y-1 transition-all flex items-center justify-center gap-2"
             >
               <i className="fas fa-thumbs-up"></i> Confirmar e Salvar

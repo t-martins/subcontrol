@@ -26,7 +26,8 @@ export interface ScannedDNA {
 export interface VisualStyle {
   id: string;
   name: string;
-  image: string;
+  images: string[]; // Array de imagens em base64
+  image?: string; // Mantido para compatibilidade retroativa
   dna?: ScannedDNA;
 }
 
